@@ -1,0 +1,23 @@
+{
+  "name": "agentmemory-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AgentMemory web-site 驗收測試（Playwright）",
+  "scripts": {
+    "test": "playwright test",
+    "test:api": "playwright test --project=api",
+    "test:ui": "playwright test --project=ui",
+    "test:headed": "playwright test --project=ui --headed",
+    "test:e2e": "playwright test --project=e2e",
+    "test:e2e:headed": "playwright test --project=e2e --headed",
+    "typecheck": "tsc --noEmit -p .",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0",
+    "@types/node": "^26.6.6",
+    "dotenv": "^18.0.10",
+    "next-auth": "^5.0.0-beta.32",
+    "typescript": "^7.0.2"
+  }
+}

@@ -15,6 +15,9 @@ description: >
 
 - **demo-site**（Next.js 16 + TS + Tailwind v4，純前端 Demo）：[demo-site/通用.md](demo-site/通用.md)
   - [列表頁面.md](demo-site/列表頁面.md) | [表單抽屜.md](demo-site/表單抽屜.md)
+- **web-site**（全端：demo-site 畫面 + Route Handler + Drizzle/Neon + Auth.js LINE + MCP）：先讀 demo-site 規範，再讀 [web-site/通用.md](web-site/通用.md)
+  - [API路由.md](web-site/API路由.md)
+  - ⚠️ web-site 的資料層改成呼叫 API，不再使用 sessionStorage；下方「前端儲存一律 sessionStorage」只適用於 demo-site
 
 ## 全專案共通規範
 
