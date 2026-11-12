@@ -83,6 +83,39 @@ export default function HomePage() {
 
   return (
     <>
+      {/* 2026/11/12 - Arlen - 一鍵吃藥按鈕放最上面方便手機操作；未吃綠底白字，已吃淡綠底加打勾 */}
+      <Card className="mb-6">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-fg">吃藥</h2>
+          <Link href="/med/buttons" className="text-sm text-primary-text hover:underline" data-testid="home-med-buttons-link">設定</Link>
+        </div>
+        {!medButtons ? (
+          <Skeleton rows={1} />
+        ) : medButtons.length === 0 ? (
+          <p className="py-4 text-center text-sm text-fg-muted">還沒有吃藥按鈕，請到「吃藥按鈕設定」新增。</p>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {medButtons.map((b) => {
+              const last = lastTaken(b.name);
+              return (
+                <button key={b.id} type="button" onClick={() => handleTake(b)} disabled={!b.drugs.length || taking === b.id}
+                  title={b.drugs.length ? undefined : "還沒有設定藥單"} data-testid="home-med-take-btn"
+                  className={`flex min-h-20 flex-col items-start rounded-md border p-3 text-left transition-opacity duration-[var(--duration-base)] disabled:cursor-not-allowed disabled:opacity-50 ${
+                    last ? "border-success bg-success-subtle text-success" : "border-success bg-success text-white hover:opacity-90"}`}>
+                  <span className="flex w-full items-center justify-between text-lg font-semibold">
+                    {b.name}
+                    {last && <span className="flex items-center gap-1 text-xs"><Check size={14} aria-hidden />{fmtDateTime(last).slice(11)}</span>}
+                  </span>
+                  <span className={`mt-1 text-xs ${last ? "text-fg-secondary" : "text-white/90"}`}>
+                    {b.drugs.length ? b.drugs.map((d) => `${d.drug} ${d.dose}`).join("、") : "還沒有設定藥單"}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </Card>
+
       <section className="img-fallback relative mb-6 overflow-hidden rounded-lg shadow-sm" data-testid="home-banner">
         <Image src="/assets/dashboard-banner.webp" alt="" fill priority className="object-cover object-right" />
         <div className="relative px-6 py-8 sm:px-8 sm:py-10">
@@ -108,38 +141,6 @@ export default function HomePage() {
               label="有效通行碼" value={activeTokens} sub="組" />
           </div>
 
-          {/* 2026/11/12 - Arlen - 一鍵吃藥按鈕，依「吃藥按鈕設定」產生 */}
-          <Card className="mb-6">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-fg">吃藥</h2>
-              <Link href="/med/buttons" className="text-sm text-primary-text hover:underline" data-testid="home-med-buttons-link">設定</Link>
-            </div>
-            {!medButtons ? (
-              <Skeleton rows={1} />
-            ) : medButtons.length === 0 ? (
-              <p className="py-4 text-center text-sm text-fg-muted">還沒有吃藥按鈕，請到「吃藥按鈕設定」新增。</p>
-            ) : (
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {medButtons.map((b) => {
-                  const last = lastTaken(b.name);
-                  return (
-                    <button key={b.id} type="button" onClick={() => handleTake(b)} disabled={!b.drugs.length || taking === b.id}
-                      title={b.drugs.length ? undefined : "還沒有設定藥單"} data-testid="home-med-take-btn"
-                      className={`flex min-h-20 flex-col items-start rounded-md border p-3 text-left transition-colors duration-[var(--duration-base)] disabled:cursor-not-allowed disabled:opacity-50 ${
-                        last ? "border-success bg-success-subtle" : "border-neutral-200 bg-surface hover:bg-primary-subtle"}`}>
-                      <span className="flex w-full items-center justify-between font-semibold text-fg">
-                        {b.name}
-                        {last && <span className="flex items-center gap-1 text-xs text-success"><Check size={14} aria-hidden />{fmtDateTime(last).slice(11)}</span>}
-                      </span>
-                      <span className="mt-1 text-xs text-fg-muted">
-                        {b.drugs.length ? b.drugs.map((d) => `${d.drug} ${d.dose}`).join("、") : "還沒有設定藥單"}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </Card>
 
           <div className="grid gap-6 lg:grid-cols-2">
             <Card>
