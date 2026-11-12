@@ -5,7 +5,12 @@ import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
   // 2026/11/12 - Arlen - 改走真 LINE OIDC（F1）；非本人由 auth.ts signIn callback 擋下並導到 /denied
-  const handleLogin = () => signIn("line", { redirectTo: "/" });
+  // 2026/11/12 - Arlen - 支援 callbackUrl（OAuth 授權頁）；只接受站內路徑，避免開放式轉址
+  const handleLogin = () => {
+    const cb = new URLSearchParams(window.location.search).get("callbackUrl") ?? "";
+    const target = cb.startsWith("/") && !cb.startsWith("//") && !cb.startsWith("/\\") ? cb : "/";
+    signIn("line", { redirectTo: target });
+  };
 
   return (
     <div className="img-fallback relative flex min-h-screen items-center justify-center px-4">

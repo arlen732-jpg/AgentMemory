@@ -12,7 +12,8 @@ const authed = withMcpAuth(
     const id = await verifyBearer(bearer);
     return id ? { token: bearer, clientId: id, scopes: [] } : undefined;
   },
-  { required: true },
+  // 2026/11/12 - Arlen - 401 附 resource_metadata，讓 Claude 自訂連接器走 OAuth
+  { required: true, resourceMetadataPath: "/.well-known/oauth-protected-resource/api/mcp" },
 );
 
 export { authed as GET, authed as POST };

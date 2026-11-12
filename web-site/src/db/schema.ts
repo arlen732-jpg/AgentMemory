@@ -77,6 +77,28 @@ export const medRecords = pgTable(
   (t) => [index("med_taken_at_idx").on(t.takenAt), index("med_drug_idx").on(t.drug)],
 );
 
+// 2026/11/12 - Arlen - OAuth 連接器（手機版 Claude）：動態註冊的 client 與一次性授權碼 - Start
+/** OAuth client：Claude 動態註冊時建立；redirect_uris 只接受白名單內的網址 */
+export const oauthClients = pgTable("oauth_clients", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 100 }).notNull(),
+  redirectUris: text("redirect_uris").array().notNull(),
+  createdAt: createdAt(),
+});
+
+/** OAuth 授權碼：只存 SHA-256 指紋，10 分鐘到期，用過即作廢 */
+export const oauthCodes = pgTable("oauth_codes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  codeHash: varchar("code_hash", { length: 64 }).notNull().unique(),
+  clientId: uuid("client_id").notNull().references(() => oauthClients.id, { onDelete: "cascade" }),
+  redirectUri: varchar("redirect_uri", { length: 500 }).notNull(),
+  codeChallenge: varchar("code_challenge", { length: 128 }).notNull(),
+  expiresAt: tz("expires_at").notNull(),
+  usedAt: tz("used_at"),
+  createdAt: createdAt(),
+});
+// 2026/11/12 - Arlen - OAuth 連接器（手機版 Claude）：動態註冊的 client 與一次性授權碼 - end
+
 /** 登入紀錄（F1） */
 export const loginLogs = pgTable("login_logs", {
   id: uuid("id").primaryKey().defaultRandom(),
