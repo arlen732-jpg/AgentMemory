@@ -49,9 +49,20 @@ export type MemoryItem = {
   createdAt: string;
 };
 
+// 2026/11/12 - Arlen - 吃藥按鈕設定（med_buttons + med_button_items）
+export type MedButtonDrug = { drug: string; dose: string };
+export type MedButton = {
+  id: string;
+  name: string;
+  sort: number;
+  drugs: MedButtonDrug[];
+  createdAt: string;
+};
+
 export type Collections = {
   memories: Memory;
   items: MemoryItem;
+  medButtons: MedButton; // 2026/11/12 - Arlen - 吃藥按鈕設定
   bp: BpRecord;
   med: MedRecord;
   tokens: ApiToken;

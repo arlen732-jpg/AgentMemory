@@ -11,6 +11,7 @@ import type { CollectionName, Collections } from "./types";
 const BASE: Record<CollectionName, string> = {
   memories: "/api/memories",
   items: "/api/items",
+  medButtons: "/api/med-buttons", // 2026/11/12 - Arlen - 吃藥按鈕設定
   bp: "/api/bp",
   med: "/api/med",
   tokens: "/api/tokens",
@@ -44,7 +45,7 @@ async function load(name: CollectionName, query: string) {
 }
 
 // 2026/11/12 - Arlen - 分類維護：記憶異動會改變分類的記憶筆數；分類改名會改變記憶的分類，兩者互相連帶重新載入
-const RELATED: Partial<Record<CollectionName, CollectionName[]>> = { memories: ["items"], items: ["memories"] };
+const RELATED: Partial<Record<CollectionName, CollectionName[]>> = { memories: ["items"], items: ["memories"], medButtons: ["med"] };
 
 /** 重新載入某集合（與連帶集合）目前畫面上用到的所有查詢 */
 export function invalidate(name: CollectionName) {

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
-  Activity, Brain, ChevronDown, FolderTree, House, KeyRound, LogOut, Menu, Pill, Upload, X,
+  Activity, Brain, ChevronDown, FolderTree, House, KeyRound, LogOut, Menu, Pill, SlidersHorizontal, Upload, X,
   type LucideIcon,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
@@ -30,6 +30,7 @@ const NAV: NavEntry[] = [
     children: [
       { label: "血壓", href: "/bp", icon: Activity, testId: "nav-bp" },
       { label: "吃藥", href: "/med", icon: Pill, testId: "nav-med" },
+      { label: "吃藥按鈕設定", href: "/med/buttons", icon: SlidersHorizontal, testId: "nav-med-buttons" }, // 2026/11/12 - Arlen - 吃藥按鈕設定
     ],
   },
   {

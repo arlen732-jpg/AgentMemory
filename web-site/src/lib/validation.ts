@@ -15,6 +15,8 @@ export const LIMITS = {
   dose: 30,
   tokenName: 30,
   itemName: 20, // 2026/11/12 - Arlen - 分類名稱，對齊 memory_items.name varchar(20)
+  medButtonName: 20, // 2026/11/12 - Arlen - 吃藥按鈕名稱，對齊 med_buttons.name varchar(20)
+  medButtonDrugs: 20, // 2026/11/12 - Arlen - 每顆按鈕最多幾種藥
 } as const;
 
 export const RESERVED_KEY = "index";

@@ -3,8 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
-import { Activity, Brain, ChevronRight, KeyRound, Pill } from "lucide-react";
+import { Activity, Brain, Check, ChevronRight, KeyRound, Pill } from "lucide-react";
+import { useDialog } from "@/components/dialogs";
 import { Badge, Card, Skeleton } from "@/components/ui";
+import { apiPost, errorMessage } from "@/lib/api";
+import type { MedButton } from "@/lib/types";
 import { bpSummary } from "@/lib/bpStats";
 import { fmtDateTime, startOfTaipeiDaysAgo } from "@/lib/dates";
 import { useCollection } from "@/lib/store";
@@ -41,12 +44,42 @@ export default function HomePage() {
   const [bp] = useCollection("bp", q.week);
   const [med] = useCollection("med", q.today);
   const [tokens] = useCollection("tokens");
+  const [medButtons] = useCollection("medButtons"); // 2026/11/12 - Arlen - 一鍵吃藥按鈕
+  const [, medApi] = useCollection("med", q.today);
+  const dialog = useDialog();
+  const [taking, setTaking] = useState<string | null>(null);
 
   const loading = !memories || !bp || !med || !tokens;
   const s = bp ? bpSummary(bp) : null;
   const todayMeds = [...(med ?? [])].sort((a, b) => a.takenAt.localeCompare(b.takenAt));
   const activeTokens = (tokens ?? []).filter((t) => tokenStatus(t) === TOKEN_STATUS.ACTIVE).length;
   const recent = [...(memories ?? [])].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 4);
+
+  // 2026/11/12 - Arlen - 一鍵吃藥：今天最後一次按的時間，以吃藥紀錄備註＝按鈕名稱判斷 - Start
+  const lastTaken = (name: string) => todayMeds.filter((m) => m.note === name).at(-1)?.takenAt;
+
+  const handleTake = async (b: MedButton) => {
+    const last = lastTaken(b.name);
+    if (last) {
+      const again = await dialog.confirm({
+        title: "再記一次？",
+        message: `「${b.name}」今天 ${fmtDateTime(last).slice(11)} 已經記過，確定要再記一次嗎？`,
+        confirmLabel: "再記一次",
+      });
+      if (!again) return;
+    }
+    setTaking(b.id);
+    try {
+      const res = await apiPost<{ count: number; takenAt: string }>(`/api/med-buttons/${b.id}/take`);
+      medApi.reload();
+      await dialog.notify({ ok: true, title: "已記錄", message: `「${b.name}」已在 ${fmtDateTime(res.takenAt).slice(11)} 記錄 ${res.count} 種藥。` });
+    } catch (err) {
+      await dialog.notify({ ok: false, title: "記錄失敗", message: errorMessage(err) });
+    } finally {
+      setTaking(null);
+    }
+  };
+  // 2026/11/12 - Arlen - 一鍵吃藥 - end
 
   return (
     <>
@@ -74,6 +107,39 @@ export default function HomePage() {
             <StatCard href="/tokens" testId="home-stat-tokens" icon={<KeyRound size={18} strokeWidth={1.75} aria-hidden />}
               label="有效通行碼" value={activeTokens} sub="組" />
           </div>
+
+          {/* 2026/11/12 - Arlen - 一鍵吃藥按鈕，依「吃藥按鈕設定」產生 */}
+          <Card className="mb-6">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-fg">吃藥</h2>
+              <Link href="/med/buttons" className="text-sm text-primary-text hover:underline" data-testid="home-med-buttons-link">設定</Link>
+            </div>
+            {!medButtons ? (
+              <Skeleton rows={1} />
+            ) : medButtons.length === 0 ? (
+              <p className="py-4 text-center text-sm text-fg-muted">還沒有吃藥按鈕，請到「吃藥按鈕設定」新增。</p>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                {medButtons.map((b) => {
+                  const last = lastTaken(b.name);
+                  return (
+                    <button key={b.id} type="button" onClick={() => handleTake(b)} disabled={!b.drugs.length || taking === b.id}
+                      title={b.drugs.length ? undefined : "還沒有設定藥單"} data-testid="home-med-take-btn"
+                      className={`flex min-h-20 flex-col items-start rounded-md border p-3 text-left transition-colors duration-[var(--duration-base)] disabled:cursor-not-allowed disabled:opacity-50 ${
+                        last ? "border-success bg-success-subtle" : "border-neutral-200 bg-surface hover:bg-primary-subtle"}`}>
+                      <span className="flex w-full items-center justify-between font-semibold text-fg">
+                        {b.name}
+                        {last && <span className="flex items-center gap-1 text-xs text-success"><Check size={14} aria-hidden />{fmtDateTime(last).slice(11)}</span>}
+                      </span>
+                      <span className="mt-1 text-xs text-fg-muted">
+                        {b.drugs.length ? b.drugs.map((d) => `${d.drug} ${d.dose}`).join("、") : "還沒有設定藥單"}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </Card>
 
           <div className="grid gap-6 lg:grid-cols-2">
             <Card>

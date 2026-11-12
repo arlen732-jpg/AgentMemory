@@ -88,6 +88,29 @@ export const medRecords = pgTable(
   (t) => [index("med_taken_at_idx").on(t.takenAt), index("med_drug_idx").on(t.drug)],
 );
 
+// 2026/11/12 - Arlen - 吃藥按鈕設定：首頁依此產生一鍵記錄按鈕 - Start
+/** 吃藥按鈕：名稱唯一，首頁依 sort 排序 */
+export const medButtons = pgTable("med_buttons", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 20 }).notNull().unique(),
+  sort: smallint("sort").notNull().default(0),
+  createdAt: createdAt(),
+});
+
+/** 按鈕內的藥：按鈕刪除時一併刪除 */
+export const medButtonItems = pgTable(
+  "med_button_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    buttonId: uuid("button_id").notNull().references(() => medButtons.id, { onDelete: "cascade" }),
+    drug: varchar("drug", { length: 50 }).notNull(),
+    dose: varchar("dose", { length: 30 }).notNull(),
+    sort: smallint("sort").notNull().default(0),
+  },
+  (t) => [index("med_button_items_button_idx").on(t.buttonId)],
+);
+// 2026/11/12 - Arlen - 吃藥按鈕設定 - end
+
 // 2026/11/12 - Arlen - OAuth 連接器（手機版 Claude）：動態註冊的 client 與一次性授權碼 - Start
 /** OAuth client：Claude 動態註冊時建立；redirect_uris 只接受白名單內的網址 */
 export const oauthClients = pgTable("oauth_clients", {
