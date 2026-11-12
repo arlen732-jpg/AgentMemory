@@ -15,6 +15,13 @@
       "when": 1794469429899,
       "tag": "0001_oauth",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794470335721,
+      "tag": "0002_memory_items",
+      "breakpoints": true
     }
   ]
 }

@@ -73,9 +73,10 @@ export function registerTools(server: Server) {
   }));
 
   server.registerTool("memory_save", {
-    description: "儲存一筆記憶：同分類內名稱已存在就更新，否則新增。",
+    // 2026/11/12 - Arlen - 分類維護：分類必須已存在，不存在直接拒絕（錯誤訊息附現有分類）
+    description: "儲存一筆記憶：同分類內名稱已存在就更新，否則新增。分類必須是既有分類，不能自行新增分類。",
     inputSchema: z.object({
-      item,
+      item: z.string().max(20).optional().describe(`分類，預設「${MEMORY_DEFAULT_ITEM}」；必須是既有分類（可用 memory_get key="${RESERVED_KEY}" 查看）`),
       key: z.string().max(LIMITS.memoryKey),
       summary: z.string().max(LIMITS.memorySummary).describe("一句話說明這筆記憶回答什麼問題"),
       value: z.string().max(LIMITS.memoryValue),

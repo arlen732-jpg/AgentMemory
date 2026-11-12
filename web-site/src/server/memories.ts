@@ -7,6 +7,7 @@ import { LIMITS, MEMORY_DEFAULT_ITEM, validateMemory, type MemoryInput } from "@
 import type { Memory } from "@/lib/types";
 import { db } from "./db";
 import { ApiError, assertId, assertValid, ERROR_CODE } from "./http";
+import { assertItemExists, itemNames } from "./items";
 
 type Row = typeof memories.$inferSelect;
 
@@ -58,6 +59,7 @@ export async function listMemories(f: MemoryFilter = {}): Promise<Memory[]> {
 export async function createMemory(input: Partial<MemoryInput>): Promise<Memory> {
   const m = cleanMemoryInput(input);
   validate(m);
+  await assertItemExists(m.item); // 2026/11/12 - Arlen - 分類必須已在分類維護建立
   await assertKeyFree(m.item, m.key);
   const [row] = await db().insert(memories).values(m).returning();
   return toMemory(row);
@@ -69,6 +71,7 @@ export async function updateMemory(id: string, input: Partial<MemoryInput>): Pro
   assertId(id, MEMORY_NOT_FOUND); // 2026/11/12 - Arlen - 非 UUID 回 404
   const m = cleanMemoryInput(input);
   validate(m);
+  await assertItemExists(m.item); // 2026/11/12 - Arlen - 分類必須已在分類維護建立
   await assertKeyFree(m.item, m.key, id);
   const [row] = await db().update(memories).set({ ...m, updatedAt: new Date() }).where(eq(memories.id, id)).returning();
   if (!row) throw new ApiError(ERROR_CODE.NOT_FOUND, "找不到這筆記憶，可能已被刪除。");
@@ -107,8 +110,7 @@ export async function memoryIndex(item: string): Promise<{ entries: { key: strin
   const entries = await db().select({ key: memories.key, summary: memories.summary }).from(memories)
     .where(eq(memories.item, item)).orderBy(asc(memories.key));
   if (entries.length) return { entries, items: [] };
-  const items = await db().selectDistinct({ item: memories.item }).from(memories).orderBy(asc(memories.item));
-  return { entries, items: items.map((r) => r.item) };
+  return { entries, items: await itemNames() }; // 2026/11/12 - Arlen - 現有分類改取自分類維護
 }
 
 // ---- 匯入（F6）----

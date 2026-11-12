@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
-  Activity, Brain, ChevronDown, House, KeyRound, LogOut, Menu, Pill, Upload, X,
+  Activity, Brain, ChevronDown, FolderTree, House, KeyRound, LogOut, Menu, Pill, Upload, X,
   type LucideIcon,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
@@ -22,6 +22,7 @@ const NAV: NavEntry[] = [
     children: [
       { label: "記憶列表", href: "/memories", icon: Brain, testId: "nav-memories" },
       { label: "匯入 memory.json", href: "/memories/import", icon: Upload, testId: "nav-import" },
+      { label: "分類維護", href: "/items", icon: FolderTree, testId: "nav-items" }, // 2026/11/12 - Arlen - 分類維護
     ],
   },
   {

@@ -41,9 +41,10 @@ export default function TokensPage() {
   const [secret, setSecret] = useState<{ name: string; value: string } | null>(null);
   const [saving, setSaving] = useState(false);
 
+  // 2026/11/12 - Arlen - 已撤銷的通行碼不再顯示（資料仍保留在資料庫）
   const sorted = useMemo(() => {
     const order: Record<TokenStatus, number> = { active: 0, expired: 1, revoked: 2 };
-    return [...(tokens ?? [])].sort((a, b) => order[tokenStatus(a)] - order[tokenStatus(b)] || b.createdAt.localeCompare(a.createdAt));
+    return (tokens ?? []).filter((t) => tokenStatus(t) !== TOKEN_STATUS.REVOKED).sort((a, b) => order[tokenStatus(a)] - order[tokenStatus(b)] || b.createdAt.localeCompare(a.createdAt));
   }, [tokens]);
 
   // 2026/11/12 - Arlen - F2：名稱不可與有效通行碼重名；到期日不超過 TOKEN_MAX_DAYS

@@ -18,6 +18,7 @@ const empty = (): MemoryInput => ({ item: MEMORY_DEFAULT_ITEM, key: "", summary:
  */
 export default function MemoryDrawer({ memory, onClose }: { memory: Memory | null; onClose: () => void }) {
   const [all, api] = useCollection("memories");
+  const [itemList] = useCollection("items");
   const dialog = useDialog();
   const [form, setForm] = useState<MemoryInput>(() =>
     memory ? { item: memory.item, key: memory.key, summary: memory.summary, value: memory.value, tags: [...memory.tags] } : empty());
@@ -75,7 +76,8 @@ export default function MemoryDrawer({ memory, onClose }: { memory: Memory | nul
     onClose();
   };
 
-  const items = [...new Set([MEMORY_DEFAULT_ITEM, ...(all ?? []).map((m) => m.item)])];
+  // 2026/11/12 - Arlen - 分類選項改取自分類維護；載入前先放目前值，避免下拉選單閃成空白
+  const items = itemList ? itemList.map((i) => i.name) : [form.item];
 
   return (
     <Drawer

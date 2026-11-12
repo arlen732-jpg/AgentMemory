@@ -9,7 +9,7 @@ async function main() {
   const { count } = await import("drizzle-orm");
   const { db } = await import("@/server/db");
   const { encryptNote } = await import("@/server/crypto");
-  const { bpRecords, medRecords, memories } = await import("@/db/schema");
+  const { bpRecords, medRecords, memories, memoryItems } = await import("@/db/schema");
   const { seedMemories } = await import("./seed-data/memories");
   const { seedBp, seedMed } = await import("./seed-data/health");
 
@@ -21,6 +21,9 @@ async function main() {
     }
   }
 
+  // 2026/11/12 - Arlen - 分類維護：memories.item 有外鍵，先補齊用到的分類（已存在就略過）
+  const items = [...new Set(seedMemories().map((m) => m.item))];
+  await db().insert(memoryItems).values(items.map((name) => ({ name }))).onConflictDoNothing();
   await db().insert(memories).values(
     seedMemories().map(({ id: _id, updatedAt, ...m }) => ({ ...m, updatedAt: new Date(updatedAt) })),
   );

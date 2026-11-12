@@ -10,6 +10,7 @@ import type { CollectionName, Collections } from "./types";
 
 const BASE: Record<CollectionName, string> = {
   memories: "/api/memories",
+  items: "/api/items",
   bp: "/api/bp",
   med: "/api/med",
   tokens: "/api/tokens",
@@ -42,10 +43,15 @@ async function load(name: CollectionName, query: string) {
   notify();
 }
 
-/** 重新載入某集合目前畫面上用到的所有查詢 */
+// 2026/11/12 - Arlen - 分類維護：記憶異動會改變分類的記憶筆數；分類改名會改變記憶的分類，兩者互相連帶重新載入
+const RELATED: Partial<Record<CollectionName, CollectionName[]>> = { memories: ["items"], items: ["memories"] };
+
+/** 重新載入某集合（與連帶集合）目前畫面上用到的所有查詢 */
 export function invalidate(name: CollectionName) {
-  for (const k of entries.keys()) {
-    if (k.startsWith(`${name}?`)) void load(name, k.slice(name.length + 1));
+  for (const n of [name, ...(RELATED[name] ?? [])]) {
+    for (const k of entries.keys()) {
+      if (k.startsWith(`${n}?`)) void load(n, k.slice(n.length + 1));
+    }
   }
   if (name === "med" && drugs.loaded) void loadDrugs();
 }

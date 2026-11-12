@@ -59,7 +59,7 @@ memory_get { key: "git-commit-rule" }  → 單筆完整內容
 ## 安全設計
 
 - **登入門禁**：只有 `ALLOWED_LINE_USER_ID` 指定的 LINE 帳號可以登入。每次登入（包括被拒絕的）都寫進 `login_logs`。
-- **通行碼**：原文只在產生時顯示一次。資料庫只存 SHA-256 指紋。通行碼可撤銷，也會到期。
+- **通行碼**：原文只在產生時顯示一次。資料庫只存 SHA-256 指紋。通行碼可撤銷，也會到期。Claude 連接器經 OAuth 取得的權杖也是通行碼，一樣可撤銷。
 - **備註加密**：血壓與吃藥的備註用 AES-256-GCM 加密後才存入資料庫。
 - **API 方法**：只用 GET 與 POST，修改與刪除也用 POST。
 
@@ -131,8 +131,47 @@ npm run dev
 
 ## 讓 AI 助手連上 MCP
 
+### 方法一：Claude 自訂連接器（建議）
+
+連接器加一次，就會跟著 Claude 帳號同步到網頁版、Claude Desktop、Claude Code 的 Code 分頁與手機 App。不需要手動複製通行碼。
+
+1. 在 claude.ai 網頁版開啟「設定 → 連接器 → 新增 → 自訂連接器」。
+2. 填入：
+   | 欄位 | 值 |
+   |------|------|
+   | 名稱 | 自訂，例如 `keelmemory` |
+   | 網址 | `https://<你的網域>/api/mcp` |
+   | 進階設定（OAuth Client ID／Secret） | 留空 |
+3. 按「連接」，用 LINE 登入，在授權頁按「允許」。
+4. 完成後，「通行碼」頁會多一筆「連接器：Claude」。要中斷存取，撤銷這一筆即可；之後要再用，回連接器頁重新連接。
+
+連接器走 OAuth 2.1，流程如下：
+
+```mermaid
+sequenceDiagram
+    participant C as Claude
+    participant W as web-site
+    participant U as 使用者
+    C->>W: 呼叫 /api/mcp（沒有權杖）
+    W-->>C: 401 + 授權資訊位置
+    C->>W: 讀 /.well-known 設定、動態註冊
+    C->>U: 開啟 /oauth/authorize
+    U->>W: LINE 登入，按「允許」
+    W-->>C: 授權碼（導回 Claude 回呼網址）
+    C->>W: 授權碼 + PKCE 換權杖
+    W-->>C: am_ 通行碼（期限 TOKEN_MAX_DAYS 天）
+```
+
+| 項目 | 規則 |
+|------|------|
+| 授權方式 | authorization_code + PKCE（S256），不發刷新權杖；到期後重新連接 |
+| 回呼網址 | 只接受 `https://claude.ai/api/mcp/auth_callback` 與 `https://claude.com/api/mcp/auth_callback` |
+| 授權碼 | 資料庫只存指紋，10 分鐘到期，只能用一次 |
+
+### 方法二：設定檔 + 通行碼（不支援連接器的 MCP 用戶端）
+
 1. 登入網頁，到「通行碼」頁產生一組通行碼，複製原文（`am_` 開頭）。
-2. 在 AI 助手的 MCP 設定加入下列內容。這裡用 `mcp-remote` 把 HTTP 端點橋接成本機程序：
+2. 在 MCP 用戶端的設定加入下列內容。這裡用 `mcp-remote` 把 HTTP 端點橋接成本機程序：
 
 ```json
 {
@@ -143,13 +182,17 @@ npm run dev
         "mcp-remote",
         "https://<你的網域>/api/mcp",
         "--header",
-        "Authorization: Bearer ${AGENTMEMORY_TOKEN}"
+        "Authorization:${AUTH_HEADER}"
       ],
-      "env": { "AGENTMEMORY_TOKEN": "am_..." }
+      "env": { "AUTH_HEADER": "Bearer am_..." }
     }
   }
 }
 ```
+
+> ⚠️ `Authorization:` 後面不要加空格，`Bearer ` 寫在 `env` 裡。Windows 上參數含空格時，`mcp-remote` 會把標頭拆壞。通行碼只貼在 `env`，不要直接寫進 `args`。
+
+> 同一個用戶端不要同時用兩種方法，否則同樣的工具會出現兩份。
 
 時間參數用 ISO-8601。沒帶時區時，系統當成台北時間（+08:00）。
 

@@ -8,12 +8,23 @@ const tz = (name: string) => timestamp(name, { withTimezone: true, mode: "date" 
 const createdAt = () => tz("created_at").notNull().defaultNow();
 const updatedAt = () => tz("updated_at").notNull().defaultNow();
 
+// 2026/11/12 - Arlen - 分類維護：記憶的分類必須先在這張表建立 - Start
+/** 記憶分類：名稱唯一；memories.item 以外鍵參照，改名連帶更新、有記憶時不可刪 */
+export const memoryItems = pgTable("memory_items", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 20 }).notNull().unique(),
+  createdAt: createdAt(),
+});
+// 2026/11/12 - Arlen - 分類維護：記憶的分類必須先在這張表建立 - end
+
 /** 個人記憶：同分類內名稱唯一 */
 export const memories = pgTable(
   "memories",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    item: varchar("item", { length: 20 }).notNull().default("個人"),
+    // 2026/11/12 - Arlen - 分類維護：加外鍵，改名 cascade、刪除 restrict
+    item: varchar("item", { length: 20 }).notNull().default("個人")
+      .references(() => memoryItems.name, { onUpdate: "cascade", onDelete: "restrict" }),
     key: varchar("key", { length: 50 }).notNull(),
     summary: varchar("summary", { length: 30 }).notNull(),
     value: varchar("value", { length: 2000 }).notNull(),

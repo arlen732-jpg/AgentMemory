@@ -3,7 +3,7 @@
 /** 記憶（memories） */
 export type Memory = {
   id: string;
-  item: string;      // 分類，第一期固定「個人」
+  item: string;      // 分類，必須是 memory_items 內的名稱
   key: string;       // 名稱，同分類內唯一；index 為保留字
   summary: string;   // 摘要，30 字內
   value: string;     // 內容
@@ -41,8 +41,17 @@ export type ApiToken = {
   tokenPreview: string;
 };
 
+// 2026/11/12 - Arlen - 分類維護（memory_items）；memoryCount 由後端即時計算
+export type MemoryItem = {
+  id: string;
+  name: string;
+  memoryCount: number;
+  createdAt: string;
+};
+
 export type Collections = {
   memories: Memory;
+  items: MemoryItem;
   bp: BpRecord;
   med: MedRecord;
   tokens: ApiToken;

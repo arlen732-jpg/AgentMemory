@@ -14,6 +14,7 @@ export const LIMITS = {
   drug: 50,
   dose: 30,
   tokenName: 30,
+  itemName: 20, // 2026/11/12 - Arlen - 分類名稱，對齊 memory_items.name varchar(20)
 } as const;
 
 export const RESERVED_KEY = "index";
