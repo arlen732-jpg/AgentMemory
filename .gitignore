@@ -1,0 +1,93 @@
+# ===== OS =====
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# ===== IDE / Editor =====
+.vs/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.swp
+
+# ===== .NET =====
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Ll]og/
+[Ll]ogs/
+*.pdb
+*.cache
+TestResults/
+*.nupkg
+packages/
+project.lock.json
+publish/
+
+# ===== Node =====
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm/
+dist/
+build/
+.next/
+out/
+coverage/
+.turbo/
+.vercel/
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+
+# ===== Playwright / 測試 =====
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# ===== 機密與本機設定 =====
+.env
+.env.*
+!.env.example
+appsettings.*.local.json
+*.pfx
+*.key
+*.pem
+dbconnections.json
+.credentials.json
+
+# ===== Claude Code 本機設定 =====
+.claude/settings.local.json
+
+# ===== 暫存 =====
+*.tmp
+*.temp
+*.bak
+*.log
+~$*
+
+# ===== 專案文件資料夾 =====
+_Project/
+_Docs/
+_SIT/
+_UAT/

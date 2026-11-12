@@ -1,0 +1,23 @@
+@import "tailwindcss";
+@import "../design/theme.css";
+
+/* 2026/11/12 - Arlen - 全站基底：明亮模式、暖米白底，色彩一律取自 theme.css */
+html {
+  background: var(--color-page);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+}
+
+body {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* 圖未到位時的漸層佔位（UIDesign 規定） */
+.img-fallback {
+  background-image: linear-gradient(135deg, var(--color-primary-subtle), var(--color-secondary-subtle));
+}

@@ -1,0 +1,84 @@
+/*
+ * AgentMemory 設計系統 — 由 tokens.json 產生（2026-11-12，Arlen）
+ * Tailwind v4：在 globals.css 中 `@import "tailwindcss"; @import "./design/theme.css";`
+ * 頁面禁止硬寫色碼，一律使用以下 utility（bg-primary、text-primary-text…）或 var(--*)
+ */
+@theme {
+  /* 主色：鼠尾草綠。DEFAULT 只作填色，文字用 primary-text */
+  --color-primary: #4D7C6B;
+  --color-primary-hover: #3F6A5B;
+  --color-primary-active: #335649;
+  --color-primary-subtle: #E8F0EC;
+  --color-primary-text: #3F6A5B;
+
+  /* 輔色：珊瑚橘。DEFAULT 只作裝飾，文字用 secondary-text */
+  --color-secondary: #E07A5F;
+  --color-secondary-hover: #D2694D;
+  --color-secondary-subtle: #FBEDE8;
+  --color-secondary-text: #A84D35;
+  --color-on-secondary: #1C1C18;
+
+  /* 語意色 */
+  --color-success: #2A7040;
+  --color-success-subtle: #E6F2E9;
+  --color-warning: #96500A;
+  --color-warning-subtle: #FBF0E1;
+  --color-danger: #B42318;
+  --color-danger-subtle: #FCE9E7;
+  --color-info: #2E6A8A;
+  --color-info-subtle: #E5F0F5;
+
+  /* 中性暖灰 */
+  --color-neutral-50: #FAFAF7;
+  --color-neutral-100: #F2F2EC;
+  --color-neutral-200: #E4E4DC;
+  --color-neutral-300: #D0D0C6;
+  --color-neutral-400: #A3A396;
+  --color-neutral-500: #6B6B60;
+  --color-neutral-600: #57574D;
+  --color-neutral-700: #42423A;
+  --color-neutral-800: #2B2B25;
+  --color-neutral-900: #1C1C18;
+
+  /* 背景三層 */
+  --color-page: #F7F7F2;
+  --color-surface: #FFFFFF;
+  --color-muted: #EFEFE8;
+
+  /* 文字 */
+  --color-fg: #1C1C18;
+  --color-fg-secondary: #57574D;
+  --color-fg-muted: #6B6B60;
+  --color-on-primary: #FFFFFF;
+
+  /* 圖表 */
+  --color-chart-systolic: #4D7C6B;
+  --color-chart-diastolic: #D2694D;
+  --color-chart-pulse: #5B6FA0;
+  --color-chart-grid: #E4E4DC;
+  --color-chart-axis: #6B6B60;
+
+  /* 字體 */
+  --font-sans: 'Noto Sans TC', 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* 圓角（圓潤） */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  /* 陰影（柔和懸浮，全站唯一層次策略） */
+  --shadow-sm: 0 1px 2px rgba(28,28,24,.05);
+  --shadow-md: 0 4px 14px rgba(28,28,24,.07);
+  --shadow-lg: 0 12px 32px rgba(28,28,24,.10);
+
+  /* 動效 */
+  --ease-standard: ease;
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 300ms;
+}
+
+:root {
+  --space-card: 20px;
+  --space-section: 24px;
+}
